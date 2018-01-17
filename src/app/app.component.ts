@@ -1,31 +1,55 @@
-import { Component } from '@angular/core';
+import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {FormControl, FormGroup} from "@angular/forms";
+import {MagicFormControlNameDirective} from "./magic";
 
 @Component({
-  selector: 'app-root',
-  template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <img width="300" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+    selector: 'app-root',
+    template: `
+    <div>
+        <form [formGroup]="myForm">
+            name : <input type="text" magic="name" #name="magic" #i><br>
+            email: <input type="text" magic="email"><br>
+            <button (click)="setValue(i.value)">Set value</button>
+        </form>
+        <hr>
+        <pre>
+            #name =  {{ name.value | json}}
+            <hr>
+            {{ myForm.value | json }}
+        </pre>
     </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
     
-  `,
-  styles: []
-})
-export class AppComponent {
-  title = 'app';
+  `})
+export class AppComponent implements AfterViewInit{
+    ngAfterViewInit(): void {
+        this.magicD.valueAccessor.registerOnChange(()=>{
+            console.log(`<<<<<<<<<<<>>>>>>>>>>>>>`);
+        });
+        this.magicD._setUpControl();
+    }
+
+    @ViewChild('name',{read:MagicFormControlNameDirective}) magicD;
+
+    myForm = new FormGroup({
+        name: new FormControl('eyal'),
+        email: new FormControl('eyal@eee.com')
+    });
+
+    setValue(msg:string){
+        this.magicD.control.setValue(msg);
+        //this.magicD.valueAccessor._handleInput('XXXXXXXXXXX');
+    }
+
+    constructor(){
+        this.myForm
+            .valueChanges
+            .subscribe((value)=>{
+                let f = this.myForm;
+                let n = this.myForm.controls.name;
+                let e = this.myForm.controls.email;
+                //this.magicD.control.setValue('eeeeeeeeeee');
+                console.log(`>>>>>>>>> ${this.magicD.control === this.myForm.controls.name}`);
+               // debugger;
+        });
+    }
 }
